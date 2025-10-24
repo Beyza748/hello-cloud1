@@ -5,9 +5,9 @@ import psycopg2
 app = Flask(__name__)
 
 # Render'ın otomatik tanımladığı veritabanı bağlantı bilgisi (DATABASE_URL ortam değişkeni)
-DATABASE_URL = os.getenv("DATABASE_URL","postgresql://hello_cloud1_db_user:d7ZKfT6I8IUdEN9oRWWGCWDTbXhTRYBa@dpg-d3tjhcggjchc73fan1dg-a.oregon-postgres.render.com/hello_cloud1_db")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://hello_cloud1_db_user:d7ZKfT6I8IUdEN9oRWWGCWDTbXhTRYBa@dpg-d3tjhcggjchc73fan1dg-a.oregon-postgres.render.com/hello_cloud1_db")
 
-#HTML ŞABLONU (tek sayfada form + liste)
+# HTML ŞABLONU (tek sayfada form + liste)
 HTML = """
 <!doctype html>
 <html>
@@ -18,22 +18,22 @@ HTML = """
   h1 { color: #333; }
   form { margin: 20px auto; }
   input { padding: 20px; font-size:16px; }
-  button{ padding:10px 15px; background:#4CAF50; color:white; border:none; border-radius: 6px; cursor: pointer;}
-  ul { list-style:none; padding:0;}
-  li { background: white; margin: 5px auto; width:200px; padding:8px; border-radius:5px;}
+  button { padding:10px 15px; background:#4CAF50; color:white; border:none; border-radius: 6px; cursor: pointer; }
+  ul { list-style:none; padding:0; }
+  li { background: white; margin: 5px auto; width:200px; padding:8px; border-radius:5px; }
   </style>
 </head>
 <body>
   <h1>Buluttan Selam!</h1>
   <p>Adını yaz, selamını yaz </p>
   <form method="POST">
-  <input type =text name=isim placeholder="Adını yaz" required>
-  <button type="submit">Gönder</button>
-</form>
-<h3>Ziyaretçiler:</h3>
-<ul>
+    <input type="text" name="isim" placeholder="Adını yaz" required>
+    <button type="submit">Gönder</button>
+  </form>
+  <h3>Ziyaretçiler:</h3>
+  <ul>
     {% for ad in isimler %}
-        <li>{{ ad }}</li>
+      <li>{{ ad }}</li>
     {% endfor %}
   </ul>
 </body>
@@ -41,31 +41,31 @@ HTML = """
 """
 
 def connect_db():
-  conn = psycopg2.connect(DATABASE_URL)
-  return conn
+    conn = psycopg2.connect(DATABASE_URL)
+    return conn
 
-@app.route("/", methods=["GET" , "POST"])
+
+@app.route("/", methods=["GET", "POST"])
 def index():
-  conn = connect_db()
-  cur = conn.cursor()
-  cur.execute("CREATE TABLE IF NOT EXISTS ziyaretciler (id SERIAL PRIMARY KEY, isim TEXT)")
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS ziyaretciler (id SERIAL PRIMARY KEY, isim TEXT)")
 
-  if request.method == "POST" :
-    isim = request.form.get("isim")
-    if isim:
-      cur.execute("INSERT INTO ziyaretciler (isim) VALUES (%s)", (isim,))
-      conn.commit()
-      
-      def index():
-        cur.execute("INSERT INTO ziyaretciler (isim) VALUES (%s)", (isim,))
-        conn.commit()
+    if request.method == "POST":
+        isim = request.form.get("isim")
+        if isim:
+            cur.execute("INSERT INTO ziyaretciler (isim) VALUES (%s)", (isim,))
+            conn.commit()
 
+    # GET ve POST fark etmeksizin son 10 ismi çek
     cur.execute("SELECT isim FROM ziyaretciler ORDER BY id DESC LIMIT 10")
     isimler = [row[0] for row in cur.fetchall()]
-    
+
     cur.close()
     conn.close()
-  return render_template_string(HTML, isimler=isimler)
 
-if __name__=="__main__":
-  app.run(host="0.0.0.0", port=5000)
+    return render_template_string(HTML, isimler=isimler)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
