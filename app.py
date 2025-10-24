@@ -65,7 +65,7 @@ def index():
     
     cur.close()
     conn.close()
-    return render_template_string(HTML, isimler=isimler)
+  return render_template_string(HTML, isimler=isimler)
 
 if __name__=="__main__":
   app.run(host="0.0.0.0", port=5000)
